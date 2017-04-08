@@ -23,13 +23,29 @@ namespace dotnetcore_kata
         }
 
         [Theory]
-        [InlineData("AB", "BC")]
-        public void Distance_Of_Route_A_B_C(string stepOne, string stepTwo)
+        [InlineData("ABC", "9")]
+        [InlineData("AD", "5")]
+        [InlineData("ADC", "13")]
+        [InlineData("AEBCD", "22")]
+        [InlineData("AED", "NO SUCH ROUTE")]
+        public void Distance_Of_Trip(string trip, string expectedDistance)
         {
-            int expectedDistance = 9;
-            var getDistance = _railRoad.CalculateDistance(stepOne, stepTwo);
+            var message = _railRoad.ReportDistance(trip);
 
-            Assert.Equal(getDistance, expectedDistance);
+            Assert.Equal(message, expectedDistance);
+        }
+
+        [Theory]
+        [InlineData("ABC", 2)]
+        [InlineData("ABCD", 3)]
+        [InlineData("AEDEU", 4)]
+        [InlineData("ABCDUFHGJA", 9)]
+        public void Understand_Trip_Format(string trip, int expectedSteps)
+
+        {
+            var getDistance = _railRoad.UnderstandTrip(trip);
+
+            Assert.Equal(getDistance.Count, expectedSteps);
         }
 
         [Theory]
@@ -56,7 +72,7 @@ namespace dotnetcore_kata
         [InlineData("AD5", "AD")]
         [InlineData("CE2", "CE")]
         [InlineData("EB3", "EB")]
-        [InlineData("AE7", "AE7")]
+        [InlineData("AE7", "AE")]
         public void UnderstandRoute_Format_Get_Route(string route, string expectedRoute)
         {
             string actualRoute = _railRoad.UnderstandRoute(route);
@@ -80,15 +96,20 @@ namespace dotnetcore_kata
 
             Assert.Equal(distance, expectedDistance);
         }
+
+
     }
 
     public class RailRoad
     {
         private Dictionary<string, int> _routes = new Dictionary<string, int>();
 
-        public int CalculateDistance(string origin, string end)
+        public string ReportDistance(string trip)
         {
-            return 0;
+            var totalDistance = CalculateTripDistance(trip);
+            if (totalDistance < 0) return "NO SUCH ROUTE";
+            else
+                return totalDistance.ToString();
         }
 
         public void LoadRoutes(string route)
@@ -99,6 +120,20 @@ namespace dotnetcore_kata
         public string UnderstandRoute(string fullRoute)
         {
             return fullRoute.Substring(0,2);
+        }
+
+        public List<string> UnderstandTrip(string fullRoute)
+        {
+            List<string> routes = new List<string>();
+            int length = 2;
+
+            for(int i = 0; i <= fullRoute.Length - length; i++)
+            {
+                string route = fullRoute.Substring(i, length);
+                routes.Add(route);
+            }
+
+            return routes;
         }
 
         public int RetrieveDistanceFromRoute(string fullRoute)
@@ -115,6 +150,26 @@ namespace dotnetcore_kata
             }
 
             return -1;
+        }
+
+        public int CalculateTripDistance(string trip)
+        {
+            int totalDistance = 0;
+            var steps = UnderstandTrip(trip);
+            foreach(var step in steps)
+            {
+                var addDistance = CalculateRouteDistance(step);
+
+                if (addDistance < 0)
+                {
+                    totalDistance = -1;
+                    return totalDistance;
+                }
+
+                totalDistance += addDistance;
+            }
+
+            return totalDistance;
         }
     }
 }
