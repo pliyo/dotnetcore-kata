@@ -102,6 +102,7 @@ namespace dotnetcore_kata
 
     public class RailRoad
     {
+        private char[] _alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
         private Dictionary<string, int> _routes = new Dictionary<string, int>();
 
         public string ReportDistance(string trip)
@@ -110,6 +111,36 @@ namespace dotnetcore_kata
             if (totalDistance < 0) return "NO SUCH ROUTE";
             else
                 return totalDistance.ToString();
+        }
+
+        public string CalculatePossibleTrips(string origin, string end)
+        {
+            // A A, A B, A C, A D, A E, A F...
+            // D
+
+            List<string> possibleRoutesFromOrigin = new List<string>();
+            int possibleTripsStartingFrom_Origin = 0;
+            string newRoute = "";
+
+            foreach (var value in _alphabet)
+            {
+                newRoute = value.ToString();
+                origin += value;
+
+                var calculateRoute = CalculateRouteDistance(origin);
+                if (calculateRoute > 0)
+                {
+                    possibleTripsStartingFrom_Origin++;
+                    possibleRoutesFromOrigin.Add(origin);
+                }
+            }
+
+            foreach(var value in possibleRoutesFromOrigin)
+            {
+
+            }
+
+            return "";
         }
 
         public void LoadRoutes(string route)
