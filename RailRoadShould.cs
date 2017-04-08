@@ -1,7 +1,6 @@
 using System;
-using Xunit;
-using System.Collections;
 using System.Collections.Generic;
+using Xunit;
 
 namespace dotnetcore_kata
 {
@@ -34,6 +33,38 @@ namespace dotnetcore_kata
         }
 
         [Theory]
+        [InlineData("AB", 5)]
+        [InlineData("BC", 4)]
+        [InlineData("CD", 8)]
+        [InlineData("DC", 8)]
+        [InlineData("DE", 6)]
+        [InlineData("AD", 5)]
+        [InlineData("CE", 2)]
+        public void Calculate_Distance_Of_A_Given_Route(string route, int expectedDistance)
+        {
+            var getDistance = _railRoad.CalculateRouteDistance(route);
+
+            Assert.Equal(getDistance, expectedDistance);
+        }
+
+        [Theory]
+        [InlineData("AB5", "AB")]
+        [InlineData("BC4", "BC")]
+        [InlineData("CD8", "CD")]
+        [InlineData("DC8", "DC")]
+        [InlineData("DE6", "DE")]
+        [InlineData("AD5", "AD")]
+        [InlineData("CE2", "CE")]
+        [InlineData("EB3", "EB")]
+        [InlineData("AE7", "AE7")]
+        public void UnderstandRoute_Format_Get_Route(string route, string expectedRoute)
+        {
+            string actualRoute = _railRoad.UnderstandRoute(route);
+
+            Assert.Equal(actualRoute, expectedRoute);
+        }
+
+        [Theory]
         [InlineData("AB5", 5)]
         [InlineData("BC4", 4)]
         [InlineData("CD8", 8)]
@@ -43,9 +74,9 @@ namespace dotnetcore_kata
         [InlineData("CE2", 2)]
         [InlineData("EB3", 3)]
         [InlineData("AE7", 7)]
-        public void UnderstandRoute_Format(string route, int expectedDistance)
+        public void UnderstandRoute_Format_Get_Distance(string route, int expectedDistance)
         {
-            int distance = _railRoad.UnderstandRoute(route);
+            int distance = _railRoad.RetrieveDistanceFromRoute(route);
 
             Assert.Equal(distance, expectedDistance);
         }
@@ -60,17 +91,30 @@ namespace dotnetcore_kata
             return 0;
         }
 
-        public int UnderstandRoute(string route)
-        {
-            var distance = route[2].ToString();
-            return int.Parse(distance);
-        }
-
         public void LoadRoutes(string route)
         {
-            var origin = route[0];
-            var end = route[1];
-            _routes[route] = UnderstandRoute(route);
+            _routes[UnderstandRoute(route)] = RetrieveDistanceFromRoute(route);
+        }
+
+        public string UnderstandRoute(string fullRoute)
+        {
+            return fullRoute.Substring(0,2);
+        }
+
+        public int RetrieveDistanceFromRoute(string fullRoute)
+        {
+            var extractedDistance = fullRoute[2].ToString();
+            return int.Parse(extractedDistance);
+        }
+
+        public int CalculateRouteDistance(string route)
+        {
+            if(_routes.ContainsKey(route))
+            {
+                return _routes[route];
+            }
+
+            return -1;
         }
     }
 }
